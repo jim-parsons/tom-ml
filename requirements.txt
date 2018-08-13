@@ -1,0 +1,10 @@
+tensorflow ==1.9.0
+Flask==0.12
+pandas==0.23.1
+numpy==1.14.5
+Flask-Cors==3.0.6
+Flask-RESTful==0.3.6
+matplotlib==2.2.2
+schedule==0.5.0
+
+

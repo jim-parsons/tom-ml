@@ -3,7 +3,6 @@ import tensorflow as tf
 
 INPUT_NODE = 784
 OUTPUT_NODE = 10
-LAYER1_NODE = 500
 
 IMAGE_SIZE = 28
 NUM_CHANNELS = 1
@@ -53,7 +52,7 @@ def inference(input_tensor, train, regularizer):
 
     # 第三层 卷积层  输入14*14*32 输出14*14*64
     with tf.variable_scope('layer3-conv2'):
-        conv2_weights = tf.get_variable('weight', [CONV2_SIZE, CONV2_SIZE, CONV1_DEEP, CONV1_DEEP],
+        conv2_weights = tf.get_variable('weight', [CONV2_SIZE, CONV2_SIZE, CONV1_DEEP, CONV2_DEEP],
                                         initializer=tf.truncated_normal_initializer(stddev=0.1))
 
         conv2_biases = tf.get_variable('bias', [CONV2_DEEP], initializer=tf.constant_initializer(0.0))
@@ -65,12 +64,11 @@ def inference(input_tensor, train, regularizer):
     # 第四层  pool层 输入14*14*32 输出7*7*64
     with tf.name_scope('layer4-pool2'):
         pool2 = tf.nn.max_pool(relu2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
-
-    # 将第四层输出转化为第五层输入, 第四层输出7*7*64,把这个拉成一个向量
-    pool_shape = pool2.get_shape().as_list()
-    # 将矩阵拉成向量,长度就为=7*7*64  pool_shape[0]为batch中数据个数
-    nodes = pool_shape[1] * pool_shape[2] * pool_shape[3]
-    reshaped = tf.reshape(pool2, [pool_shape[0], nodes])
+        # 将第四层输出转化为第五层输入, 第四层输出7*7*64,把这个拉成一个向量
+        pool_shape = pool2.get_shape().as_list()
+        # 将矩阵拉成向量,长度就为=7*7*64  pool_shape[0]为batch中数据个数
+        nodes = pool_shape[1] * pool_shape[2] * pool_shape[3]
+        reshaped = tf.reshape(pool2, [pool_shape[0], nodes])
 
     # 第五层 输入为7*7*64=3136 一维向量,输出512
     with tf.variable_scope('layer5-fc1'):
@@ -78,7 +76,7 @@ def inference(input_tensor, train, regularizer):
                                       initializer=tf.truncated_normal_initializer(stddev=0.1))
 
         if regularizer is not None:
-            tf.add_to_collection('loss', regularizer(fc1_weights))
+            tf.add_to_collection('losses', regularizer(fc1_weights))
 
         fc1_biases = tf.get_variable('bias', [FC_SIZE], initializer=tf.constant_initializer(0.1))
 

@@ -38,14 +38,14 @@ def inference(input_tensor, train, regularizer):
         # filter: 相当于CNN中的卷积核，它要求是一个Tensor，具有[filter_height, filter_width, in_channels, out_channels]这样的shape，
         # [卷积核的高度，卷积核的宽度，图像通道数，卷积核个数]，要求类型与参数input相同，有一个地方需要注意，第三维in_channels，就是参数input的第四维
 
-        # strides: 卷积时在图像每一维的步长，这是一个一维的向量，长度4
+        # strides: 卷积时在图像每一维的步长，这是一个一维的向量，长度4 第一维和第四维一定是1,因为卷积层的补偿支队举证的长和宽有效
 
         # padding：string类型的量，只能是"SAME","VALID"其中之一
         conv1 = tf.nn.conv2d(input_tensor, conv1_weights, strides=[1, 1, 1, 1], padding='SAME')
 
         relu1 = tf.nn.relu(tf.nn.bias_add(conv1, conv1_biases))
 
-    # 第二层 pool层 边长为2 步长为2 上一层输出为28*28*32 这一层输出为14*14*32
+    # 第二层 pool层 边长为2x2 步长为2 上一层输出为28*28*32 这一层输出为14*14*32
     with tf.name_scope('layer2-pool1'):
         # max_pool(value, ksize, strides, padding, data_format='NHWC', name=None)
         pool1 = tf.nn.max_pool(relu1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
@@ -70,7 +70,7 @@ def inference(input_tensor, train, regularizer):
         nodes = pool_shape[1] * pool_shape[2] * pool_shape[3]
         reshaped = tf.reshape(pool2, [pool_shape[0], nodes])
 
-    # 第五层 输入为7*7*64=3136 一维向量,输出512
+    # 第五层 输入为7*7*64=3136 一维向量,输出512 [3136, 512]
     with tf.variable_scope('layer5-fc1'):
         fc1_weights = tf.get_variable('weight', [nodes, FC_SIZE],
                                       initializer=tf.truncated_normal_initializer(stddev=0.1))
@@ -87,7 +87,7 @@ def inference(input_tensor, train, regularizer):
             fc1 = tf.nn.dropout(fc1, 0.5)
 
     # 第六层 输入为512向量,输出为10向量,通过softmax得到分类结果
-    with tf.variable_scope('layer5-fc2'):
+    with tf.variable_scope('layer6-fc2'):
         fc2_weights = tf.get_variable('weight', [FC_SIZE, NUM_LABELS],
                                       initializer=tf.truncated_normal_initializer(stddev=0.1))
 

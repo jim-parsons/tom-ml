@@ -60,7 +60,10 @@ def train(mnist):
     # global_step会自动跟新,从而学习率也会更新
     train_step = tf.train.GradientDescentOptimizer(decayed_learning_rate).minimize(loss, global_step=global_step)
 
+    # train_step, variable_averages_op 先执行,
+    # train_op 在上面执行完毕之后才执行
     with tf.control_dependencies([train_step, variable_averages_op]):
+        # tf.no_op什么都不做
         train_op = tf.no_op(name='train')
 
     saver = tf.train.Saver()

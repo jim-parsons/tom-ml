@@ -11,7 +11,7 @@ import tensorflow.contrib.slim.python.slim.nets.inception_v3 as inception_v3
 INPUT_DATA = './model/flower_processed_data.npy'
 
 # 新的训练数据训练模型保存路径
-TRAIN_FILE = './model/'
+TRAIN_FILE = './model/model/'
 
 # 训练好的模型
 CKPT_FILE = './model/inception_v3.ckpt'
@@ -158,5 +158,10 @@ def main():
         print('Final test accuracy = %.1f%%' % (test_accuracy * 100))
 
 
+def test():
+    hello = tf.constant('hello')
+    with tf.Session() as sess:
+        print(sess.run(hello))
+
 if __name__ == '__main__':
-    main()
+    test()

@@ -47,7 +47,7 @@ def create_image_lists(sess, testing_percentage, validation_percentage):
 
         if not file_list:
             continue
-        print('processing :' + dir_name)
+        print('processing :' + dir_name + ' : ' + str(len(file_list)) + ' 个图片')
 
         i = 0
         # 处理图片数据

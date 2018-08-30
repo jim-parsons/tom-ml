@@ -43,8 +43,6 @@ with tf.Graph().as_default() as graph:
         predictions = sess.run(softmax_tensor, {input_x: bottleneck_values})
         predictions = predictions[0]
         # [i: j: s]
-        # [2 4 1 3 0]
-        # [0 3 1 4 2]
         # top_k = predictions.argsort()[-len(predictions):][::-1]
         top_k = predictions.argsort()[::-1]
         print(top_k)

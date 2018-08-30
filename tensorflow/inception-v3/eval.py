@@ -1,16 +1,18 @@
 import tensorflow as tf
 import numpy as np
 
-CHECK_POINT_DIR = './model/model/'
-INCEPTION_MODEL_FILE = './model/inception_v3.ckpt'
+CHECK_POINT_DIR = './runs/1535611282/checkpoints'
+LABELS_DIR = './runs/1535611282/labels.txt'
+INCEPTION_MODEL_FILE = './model/classify_image_graph_def.pb'
 
 BOTTLENECK_TENSOR_NAME = 'pool_3/_reshape:0'  # inception-v3模型中代表瓶颈层结果的张量名称
 JPEG_DATA_TENSOR_NAME = 'DecodeJpeg/contents:0'  # 图像输入张量对应的名称
 
-file_path = ''
-y_test = [4]
+file_path = 'E:/flower_photos/daisy/5547758_eea9edfd54_n.jpg'
+BOTTLENECK_TENSOR_SIZE = 2048
 
 image_data = tf.gfile.FastGFile(file_path, 'rb').read()
+label_lines = [line.rstrip() for line in tf.gfile.GFile(LABELS_DIR)]
 
 checkpoint_file = tf.train.latest_checkpoint(CHECK_POINT_DIR)
 
@@ -34,13 +36,28 @@ with tf.Graph().as_default() as graph:
         # 通过名字从图中获取输入占位符
         input_x = graph.get_operation_by_name('BottleneckInputPlaceholder').outputs[0]
 
-        predictions = graph.get_operation_by_name('evaluation/ArgMax').outputs[0]
+        # softmax_tensor = graph.get_operation_by_name('evaluation/ArgMax').outputs[0]
+        softmax_tensor = graph.get_operation_by_name('final_training_ops/Softmax').outputs[0]
 
-        all_predictions = []
+        bottleneck_values = bottleneck_values.reshape(-1, BOTTLENECK_TENSOR_SIZE)
+        predictions = sess.run(softmax_tensor, {input_x: bottleneck_values})
+        predictions = predictions[0]
+        # [i: j: s]
+        # [2 4 1 3 0]
+        # [0 3 1 4 2]
+        # top_k = predictions.argsort()[-len(predictions):][::-1]
+        top_k = predictions.argsort()[::-1]
+        print(top_k)
 
-        all_predictions = sess.run(predictions, {input_x: bottleneck_values})
+        predict_result = {}
 
-if y_test is not None:
-    correct_predictions = float(sum(all_predictions == y_test))
-    print('\nTotal number of test examples: {}'.format(len(y_test)))
-    print('Accuracy: {:g}'.format(correct_predictions / float(len(y_test))))
+        for node_id in top_k:
+            flower = label_lines[node_id]
+            score = str(predictions[node_id])
+            predict_result[flower] = score
+        print(predict_result)
+
+# if y_test is not None:
+#     correct_predictions = float(sum(predictions == y_test))
+#     print('\nTotal number of test examples: {}'.format(len(y_test)))
+#     print('Accuracy: {:g}'.format(correct_predictions / float(len(y_test))))

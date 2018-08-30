@@ -8,7 +8,7 @@ import tensorflow.contrib.slim as slim
 # 加载通过TensorFlow-Slim定义好的inception_v3模型。
 import tensorflow.contrib.slim.python.slim.nets.inception_v3 as inception_v3
 
-INPUT_DATA = './model/flower_processed_data.npy'
+INPUT_DATA = './model/model/flower_processed_data.npy'
 
 # 新的训练数据训练模型保存路径
 TRAIN_FILE = './model/model/'
@@ -86,29 +86,12 @@ def main():
     images = tf.placeholder(tf.float32, [None, 299, 299, 3], name='input_images')
     labels = tf.placeholder(tf.int64, [None], name='labels')
 
-    # 定义inception-v3模型。因为谷歌给出的只有模型参数取值，所以这里
-    # 需要在这个代码中定义inception-v3的模型结构。虽然理论上需要区分训练和
-    # 测试中使用到的模型，也就是说在测试时应该使用is_training=False，但是
-    # 因为预先训练好的inception-v3模型中使用的batch normalization参数与
-    # 新的数据会有出入，所以这里直接使用同一个模型来做测试。
-
     with slim.arg_scope(inception_v3.inception_v3_arg_scope()):
         logits, _ = inception_v3.inception_v3(images, num_classes=N_CLASSES)
 
     # 获取需要训练的变量
     trainable_variables = get_trainable_variables()
 
-    # 定义损失函数和训练过程。
-    # tf.losses.softmax_cross_entropy(
-    #     onehot_labels,  #  [batch_size, num_classes] one_hot类型的label.
-    #     logits,   [batch_size, num_classes] 神经网络的logits输出.
-    #     weights=1.0, loss的系数
-    #     label_smoothing=0 如果大于0，则对label进行平滑,公式如下
-    #                              new_onehot_labels = onehot_labels*(1-label_smoothing) + label_smoothing/num_classes
-    #     scope=None,  命名空间
-    #     loss_collection=tf.GraphKeys.LOSSES, 指定loss集合
-    #     reduction=Reduction.SUM_BY_NONZERO_WEIGHTS
-    # )
     tf.losses.softmax_cross_entropy(tf.one_hot(labels, N_CLASSES), logits=logits, weights=1.0)
     total_loss = tf.losses.get_total_loss()
     train_step = tf.train.RMSPropOptimizer(LEARNING_RATE).minimize(total_loss)

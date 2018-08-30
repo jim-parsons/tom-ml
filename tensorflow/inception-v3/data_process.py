@@ -1,5 +1,7 @@
 import glob
 import os.path
+import time
+
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.platform import gfile
@@ -16,7 +18,7 @@ TEST_PERCENTAGE = 10
 
 def create_image_lists(sess, testing_percentage, validation_percentage):
     # ['../../data/flowers']
-    sub_dirs = [x[0] for x in os.walk(INPUT_DATA)]   # 获取所有子目录
+    sub_dirs = [x[0] for x in os.walk(INPUT_DATA)]  # 获取所有子目录
     is_root_dir = True  # 第一个目录为当前目录，需要忽略
 
     # 初始化各个数据集
@@ -95,5 +97,7 @@ def create_image_lists(sess, testing_percentage, validation_percentage):
 
 
 with tf.Session() as sess:
+    start = time.time()
     processed_data = create_image_lists(sess, TEST_PERCENTAGE, VALIDATION_PERCENTAGE)
     np.save(OUTPUT_FILE, processed_data)
+    print('共耗时 %f: ' % (time.time() - start))

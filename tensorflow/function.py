@@ -28,6 +28,7 @@ b = tf.Variable(tf.zeros([1]), name='b')
 y = W * x_data + b
 
 # 预估值y和实际值y_data之间的均方误差作为损失
+
 loss = tf.reduce_mean(tf.square(y - y_data), name='loss')
 # 梯度下降
 optimizer = tf.train.GradientDescentOptimizer(0.5)

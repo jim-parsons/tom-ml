@@ -317,5 +317,3 @@ def main(_):
 
 if __name__ == '__main__':
     tf.app.run()
-    # print(create_image_lists(10, 10))
-    # print(os.path.join(MODEL_DIR, MODEL_FILE))

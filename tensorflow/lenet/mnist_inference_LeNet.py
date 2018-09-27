@@ -48,6 +48,8 @@ def inference(input_tensor, train, regularizer):
     # 第二层 pool层 边长为2x2 步长为2 上一层输出为28*28*32 这一层输出为14*14*32
     with tf.name_scope('layer2-pool1'):
         # max_pool(value, ksize, strides, padding, data_format='NHWC', name=None)
+        # ksize 第一个和第四个参数为batch和channels,无需再此上面池化,所以设为1
+        # strides 和上面类似
         pool1 = tf.nn.max_pool(relu1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
 
     # 第三层 卷积层  输入14*14*32 输出14*14*64
